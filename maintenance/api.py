@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import absolute_import, unicode_literals, print_function
 import logging
 import datetime
 #from django.utils import timezone
@@ -56,8 +58,8 @@ def start(ignore_session=False, timeout=60, verbosity=1):
                     break
                 if not rounds:
                     if verbosity > 0:
-                        print "Active sessions detected. Waiting for logout. (Session timeout set to %s secs) " % settings.SESSION_COOKIE_AGE
-                        print "Type double ^C to stop"
+                        print("Active sessions detected. Waiting for logout. (Session timeout set to %s secs) " % settings.SESSION_COOKIE_AGE)
+                        print("Type double ^C to stop")
                         sys.stdout.write(
                             "%s pending sessions. %s (%d sec)\r" % (users, C[rounds % 2], round(time.time() - _start)))
                         sys.stdout.flush()
