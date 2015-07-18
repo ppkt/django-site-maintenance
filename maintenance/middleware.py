@@ -15,6 +15,9 @@ class MaintenanceMiddleware(object):
         if api.MAINTENANCE_URL == request.path:
             return None
 
+        if request.path in api.BYPASSED_URLS:
+            return None
+
         status = api.status()
 
         if status == api.STATUS.OFFLINE:

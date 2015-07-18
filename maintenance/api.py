@@ -27,6 +27,7 @@ STATUS = enum(OFFLINE=2, PENDING=3, ONLINE=4)
 MAINTENANCE_FILE = getattr(settings, 'MAINTENANCE_FILE', '/tmp/DJANGO_MAINTENANCE_FILE_%s' % settings.SITE_ID)
 PENDING_MAINTENANCE_FILE = "%s_" % MAINTENANCE_FILE
 MAINTENANCE_URL = getattr(settings, 'MAINTENANCE_URL', static('maintenance/maintenance.html'))
+BYPASSED_URLS = getattr(settings, 'MAINTENANCE_BYPASSED_URLS', (None, ))
 
 SUCCESS = 0
 ERROR_BREAK = 1
