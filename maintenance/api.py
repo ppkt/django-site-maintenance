@@ -94,8 +94,9 @@ def get_active_users():
     from django.db import transaction
     from django.contrib.sessions.models import Session
 
-    Session.objects.filter(expire_date__lt=datetime.datetime.now()).delete()
-    transaction.commit_unless_managed()
+    with transaction.atomic():
+        Session.objects.filter(expire_date__lt=datetime.datetime.now()).delete()
+
     return Session.objects.count()
 
 
@@ -124,5 +125,3 @@ def status():
         return STATUS.PENDING
     elif is_online():
         return STATUS.ONLINE
-
-
