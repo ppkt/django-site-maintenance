@@ -7,6 +7,13 @@ import logging
 logger = logging.getLogger("maintenance.middleware")
 
 class MaintenanceMiddleware(object):
+
+    def __init__(self):
+        try:
+            self.setting_value = settings.MAINTENANCE_BYPASS_COOKIE
+        except AttributeError:
+            self.setting_value = None
+
     def redirect(self, status):
         logger.info('Maintenance Mode: Status %s. Redirect to %s' % (status, api.MAINTENANCE_URL))
         return HttpResponseRedirect(api.MAINTENANCE_URL)
@@ -16,6 +23,12 @@ class MaintenanceMiddleware(object):
             return None
 
         if request.path in api.BYPASSED_URLS:
+            return None
+
+        bypass_value = request.COOKIES.get('django_maintenance_bypass_cookie')
+
+        if bypass_value and self.setting_value and \
+                bypass_value == self.setting_value:
             return None
 
         status = api.status()

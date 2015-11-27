@@ -1,13 +1,12 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, unicode_literals, print_function
-import logging
+from __future__ import absolute_import, print_function
+
 import datetime
+import logging
 #from django.utils import timezone
-import os, sys
+import os
 from time import sleep
 import time
 from types import *
-from maintenance.models import MaintenanceWindow
 
 try:
     from django.templatetags.static import static
@@ -94,11 +93,9 @@ def stop():
 
 
 def get_active_users():
-    from django.db import transaction
     from django.contrib.sessions.models import Session
 
-    with transaction.atomic():
-        Session.objects.filter(expire_date__lt=datetime.datetime.now()).delete()
+    Session.objects.filter(expire_date__lt=datetime.datetime.now()).delete()
 
     return Session.objects.count()
 

@@ -1,11 +1,9 @@
 #!/usr/bin/env python
 import os
-from distutils.core import setup, Command
-from distutils.command.register import register
-from distutils.command.upload import upload
-
 from distutils.command.install import INSTALL_SCHEMES
-import sys
+from distutils.core import setup
+
+from setuptools import find_packages
 
 dirname = 'maintenance'
 
@@ -87,7 +85,7 @@ setup(
     author='Stefano Apostolico',
     author_email='s.apostolico@gmail.com',
     license="MIT License",
-    packages=packages,
+    packages=find_packages(),
     data_files=data_files,
     platforms=['linux'],
     install_requires=dependencies,
