@@ -1,11 +1,12 @@
-import logging
+from __future__ import absolute_import, print_function
+
 import datetime
-#from django.utils import timezone
-import os, sys
-from time import sleep
+import logging
+import os
+import sys
 import time
+from time import sleep
 from types import *
-from maintenance.models import MaintenanceWindow
 
 try:
     from django.templatetags.static import static
@@ -19,14 +20,17 @@ from django.conf import settings
 
 logger = logging.getLogger("maintenance")
 
+
 def enum(**enums):
     enums['_labels'] = dict(zip(enums.values(), map(str.upper, enums.keys())))
     return type('Enum', (), enums)
+
 
 STATUS = enum(OFFLINE=2, PENDING=3, ONLINE=4)
 MAINTENANCE_FILE = getattr(settings, 'MAINTENANCE_FILE', '/tmp/DJANGO_MAINTENANCE_FILE_%s' % settings.SITE_ID)
 PENDING_MAINTENANCE_FILE = "%s_" % MAINTENANCE_FILE
 MAINTENANCE_URL = getattr(settings, 'MAINTENANCE_URL', static('maintenance/maintenance.html'))
+BYPASSED_URLS = getattr(settings, 'MAINTENANCE_BYPASSED_URLS', (None, ))
 
 SUCCESS = 0
 ERROR_BREAK = 1
@@ -56,8 +60,8 @@ def start(ignore_session=False, timeout=60, verbosity=1):
                     break
                 if not rounds:
                     if verbosity > 0:
-                        print "Active sessions detected. Waiting for logout. (Session timeout set to %s secs) " % settings.SESSION_COOKIE_AGE
-                        print "Type double ^C to stop"
+                        print("Active sessions detected. Waiting for logout. (Session timeout set to %s secs) " % settings.SESSION_COOKIE_AGE)
+                        print("Type double ^C to stop")
                         sys.stdout.write(
                             "%s pending sessions. %s (%d sec)\r" % (users, C[rounds % 2], round(time.time() - _start)))
                         sys.stdout.flush()
@@ -91,11 +95,10 @@ def stop():
 
 
 def get_active_users():
-    from django.db import transaction
     from django.contrib.sessions.models import Session
 
     Session.objects.filter(expire_date__lt=datetime.datetime.now()).delete()
-    transaction.commit_unless_managed()
+
     return Session.objects.count()
 
 
@@ -124,5 +127,3 @@ def status():
         return STATUS.PENDING
     elif is_online():
         return STATUS.ONLINE
-
-

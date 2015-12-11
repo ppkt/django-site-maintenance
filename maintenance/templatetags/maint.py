@@ -5,6 +5,7 @@ from maintenance.api import STATUS
 
 register = template.Library()
 
+
 @register.tag
 def maintenance(parser, token):
     try:
@@ -18,6 +19,7 @@ def maintenance(parser, token):
     nodelist = parser.parse(('endmaintenance',))
     parser.delete_first_token()
     return MaintenanceNode(nodelist, status)
+
 
 class MaintenanceNode(template.Node):
     def __init__(self, nodelist, status):

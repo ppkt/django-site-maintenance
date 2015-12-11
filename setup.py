@@ -1,11 +1,9 @@
 #!/usr/bin/env python
 import os
-from distutils.core import setup, Command
-from distutils.command.register import register
-from distutils.command.upload import upload
-
 from distutils.command.install import INSTALL_SCHEMES
-import sys
+from distutils.core import setup
+
+from setuptools import find_packages
 
 dirname = 'maintenance'
 
@@ -83,11 +81,11 @@ setup(
     name=app.NAME,
     version=app.get_version(),
     url='https://github.com/saxix/%s' % app.NAME,
-    download_url='http://pypi.python.org/packages/source/d/{app}/{app}-{ver}.tar.gz' % {'app':app.NAME, 'ver':app.get_version()},
+    download_url='http://pypi.python.org/packages/source/d/{app}/{app}-{ver}.tar.gz' % {'app': app.NAME, 'ver': app.get_version()},
     author='Stefano Apostolico',
     author_email='s.apostolico@gmail.com',
     license="MIT License",
-    packages=packages,
+    packages=find_packages(),
     data_files=data_files,
     platforms=['linux'],
     install_requires=dependencies,

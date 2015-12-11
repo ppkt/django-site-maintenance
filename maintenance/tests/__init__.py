@@ -1,13 +1,18 @@
 import logging
-from django.core.files import temp
-from django.core.management import call_command
-from django.test.testcases import TestCase
 import os
 import time
+import unittest
+
+from django.core.files import temp
+from django.core.management import call_command
+from django.http import SimpleCookie
+from django.test.testcases import TestCase
+
 from maintenance import api, middleware
-from maintenance.api import SUCCESS, ERROR_TIMEOUT, MaintenanceModeError
+from maintenance.api import SUCCESS, MaintenanceModeError
 from maintenance.tests.future import SimpleTestCase
 from maintenance.utils import register_session, CommandTask
+
 
 class MaintenanceTestCaseMixIn(object):
 
@@ -93,7 +98,6 @@ class TestMiddleware(SimpleTestCase, MaintenanceTestCaseMixIn):
                       'django.contrib.admin',
                       'django.contrib.sessions']
 
-
     def _activate(self, **kwargs):
         from multiprocessing import Process
 
@@ -102,6 +106,21 @@ class TestMiddleware(SimpleTestCase, MaintenanceTestCaseMixIn):
         p = Process(target=api.start, kwargs=kwargs)
         p.start()
         time.sleep(5)
+
+    def test_bypass_maintenance_by_cookie(self):
+        settings_cookie = 'some_cookie_value'
+        with self.settings(MIDDLEWARE_CLASSES=self.MIDDLEWARE_CLASSES,
+                           INSTALLED_APPS=self.INSTALLED_APPS,
+                           MAINTENANCE_BYPASS_COOKIE=settings_cookie):
+            self._activate(verbosity=1)
+            response = self.client.get('/admin/')
+            self.assertEqual(response.status_code, 302)
+
+            self.client.cookies = SimpleCookie({
+                'django_maintenance_bypass_cookie': settings_cookie
+            })
+            response = self.client.get('/admin/')
+            self.assertEqual(response.status_code, 200)
 
     def test_logged_user_allowed(self):
         with self.settings(
