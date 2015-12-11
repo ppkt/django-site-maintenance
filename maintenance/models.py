@@ -3,13 +3,16 @@ from django.db import models
 from django.db.models.manager import Manager
 from django.utils.translation import ugettext_lazy as _
 
+
 class MaintenanceWindowManager(Manager):
 
     def actives(self):
         """ returns true if there
         """
         now = datetime.now()
-        return MaintenanceWindow.objects.filter(start_date__lt=now, end_date__gt=now, mode=MaintenanceWindow.MODE_SOFT).exists()
+        return MaintenanceWindow.objects.filter(
+            start_date__lt=now, end_date__gt=now,
+            mode=MaintenanceWindow.MODE_SOFT).exists()
 
 
 class MaintenanceWindow(models.Model):
@@ -24,7 +27,9 @@ class MaintenanceWindow(models.Model):
     end_date = models.DateTimeField()
 
     mode = models.IntegerField(choices=MODES)
-    notificiation_period = models.IntegerField(_('Notification Period'), help_text='Notification period before maintenance (in minutes)')
+    notificiation_period = models.IntegerField(
+        _('Notification Period'),
+        help_text='Notification period before maintenance (in minutes)')
 
     notify_users = models.BooleanField(default=False)
 

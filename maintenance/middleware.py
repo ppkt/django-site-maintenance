@@ -36,7 +36,7 @@ class MaintenanceMiddleware(object):
         if status == api.STATUS.OFFLINE:
             return self.redirect(api.STATUS.OFFLINE)
 
-        if  status == api.STATUS.PENDING:
+        if status == api.STATUS.PENDING:
             engine = import_module(settings.SESSION_ENGINE)
             session_key = request.COOKIES.get(settings.SESSION_COOKIE_NAME, None)
             session = engine.SessionStore()
