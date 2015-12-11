@@ -20,9 +20,11 @@ from django.conf import settings
 
 logger = logging.getLogger("maintenance")
 
+
 def enum(**enums):
     enums['_labels'] = dict(zip(enums.values(), map(str.upper, enums.keys())))
     return type('Enum', (), enums)
+
 
 STATUS = enum(OFFLINE=2, PENDING=3, ONLINE=4)
 MAINTENANCE_FILE = getattr(settings, 'MAINTENANCE_FILE', '/tmp/DJANGO_MAINTENANCE_FILE_%s' % settings.SITE_ID)

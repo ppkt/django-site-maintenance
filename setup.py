@@ -81,7 +81,7 @@ setup(
     name=app.NAME,
     version=app.get_version(),
     url='https://github.com/saxix/%s' % app.NAME,
-    download_url='http://pypi.python.org/packages/source/d/{app}/{app}-{ver}.tar.gz' % {'app':app.NAME, 'ver':app.get_version()},
+    download_url='http://pypi.python.org/packages/source/d/{app}/{app}-{ver}.tar.gz' % {'app': app.NAME, 'ver': app.get_version()},
     author='Stefano Apostolico',
     author_email='s.apostolico@gmail.com',
     license="MIT License",

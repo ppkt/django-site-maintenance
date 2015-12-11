@@ -1,13 +1,17 @@
 import logging
+from importlib import import_module
+
 from django.conf import settings
-from django.utils.importlib import import_module
+
 from maintenance import api
 from maintenance.api import MaintenanceModeError
-from maintenance.management.lockfile import FileLock, LockFailed, AlreadyLocked, LockTimeout, NotLocked
-import signal
+from maintenance.management.lockfile import FileLock, LockFailed, \
+    AlreadyLocked, LockTimeout, NotLocked
 
-__all__ = ['register_session', 'unregister_session', 'CommandTask', 'CommandRunningError']
+__all__ = ['register_session', 'unregister_session', 'CommandTask',
+           'CommandRunningError']
 logger = logging.getLogger("commands")
+
 
 class CommandRunningError(Exception):
     pass
@@ -28,10 +32,11 @@ def unregister_session(session_key):
 
 
 def fmt_duration(secs):
-    pluralize = lambda value, label: "%s%s" % (label, ['','s'][value>1])
+    pluralize = lambda value, label: "%s%s" % (label, ['', 's'][value > 1])
     hours, remainder = divmod(secs, 3600)
     minutes, seconds = divmod(remainder, 60)
     ret = []
+    l = ''
     if hours > 0:
         ret.append(str(int(hours)))
         l = pluralize(hours, "hour")
@@ -41,25 +46,31 @@ def fmt_duration(secs):
     if seconds:
         ret.append(str(int(seconds)))
         l = pluralize(seconds, "second")
-    return "%s %s " %  (":".join(ret), l)
+    return "%s %s " % (":".join(ret), l)
+
 
 def cleanup_factory(owner):
     def _inner(*args):
         return owner.cleanup(*args)
     return _inner
 
+
 class CommandTask(object):
     """
-        Context Manager to handle both parallel running and maintenance mode, it:
-          - do not allow to run two django command wir the same ``session_key``
-          - do not allow to run the command if Maintenance-mode is active/pending
-
-           session_key        id of current command
-           force              if True ignore lock and run in parralel, if any
-           timeout            timeout for locking release
-           check_maintenance  check Maintenance mode
+    Context Manager to handle both parallel running and maintenance mode, it:
+      - do not allow to run two django command with the same ``session_key``
+      - do not allow to run the command if Maintenance-mode is active/pending
     """
-    def  __init__( self, session_key, force=False, timeout=1, check_maintenance=False):
+    def __init__(self, session_key, force=False, timeout=1,
+                 check_maintenance=False):
+        """
+
+        :param session_key: id of current command
+        :param force: if True ignore lock and run in parallel, if any
+        :param timeout: timeout for locking release
+        :param check_maintenance: check Maintenance mode
+        :return:
+        """
         self._key = "%s.lock" % session_key
         self.lock = FileLock(self._key)
 
@@ -74,17 +85,17 @@ class CommandTask(object):
         except (AlreadyLocked, LockFailed, LockTimeout), e:
             raise CommandRunningError('Unable to lock', e)
 
-    def cleanup(self, type=None, value=None, tb=None):
+    def cleanup(self, type_=None, value=None, _=None):
         try:
             self.lock.release()
         except NotLocked:
             pass
         unregister_session(self._key)
-        if type:
+        if type_:
             logger.exception(value)
-            raise type(value)
+            raise type_(value)
 
-    def __enter__( self ):
+    def __enter__(self):
         try:
             register_session(self._key)
         except:
@@ -92,5 +103,5 @@ class CommandTask(object):
             raise
         return self
 
-    def __exit__( self, type, value, tb ):
-        self.cleanup(type, value, tb )
+    def __exit__(self, type_, value, tb):
+        self.cleanup(type_, value, tb)

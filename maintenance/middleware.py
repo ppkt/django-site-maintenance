@@ -6,6 +6,7 @@ import logging
 
 logger = logging.getLogger("maintenance.middleware")
 
+
 class MaintenanceMiddleware(object):
 
     def __init__(self):
@@ -14,7 +15,8 @@ class MaintenanceMiddleware(object):
         except AttributeError:
             self.setting_value = None
 
-    def redirect(self, status):
+    @staticmethod
+    def redirect(status):
         logger.info('Maintenance Mode: Status %s. Redirect to %s' % (status, api.MAINTENANCE_URL))
         return HttpResponseRedirect(api.MAINTENANCE_URL)
 
