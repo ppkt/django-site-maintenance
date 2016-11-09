@@ -1,19 +1,24 @@
+import logging
+from importlib import import_module
+
 from django.conf import settings
 from django.http import HttpResponseRedirect
-from importlib import import_module
+from django.utils.deprecation import MiddlewareMixin
+
 from maintenance import api
-import logging
 
 logger = logging.getLogger("maintenance.middleware")
 
 
-class MaintenanceMiddleware(object):
+class MaintenanceMiddleware(MiddlewareMixin):
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         try:
             self.setting_value = settings.MAINTENANCE_BYPASS_COOKIE
         except AttributeError:
             self.setting_value = None
+            
+        super(MaintenanceMiddleware, self).__init__(*args, **kwargs)
 
     @staticmethod
     def redirect(status):
