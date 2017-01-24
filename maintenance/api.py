@@ -3,20 +3,12 @@ from __future__ import absolute_import, print_function
 import datetime
 import logging
 import os
-import sys
 import time
 from time import sleep
 from types import *
 
-try:
-    from django.templatetags.static import static
-except ImportError: # 1.3 fallback
-    from urlparse import urljoin
-
-    def static(path):
-        return urljoin(settings.STATIC_URL, path)
-
 from django.conf import settings
+from django.templatetags.static import static
 
 logger = logging.getLogger("maintenance")
 
