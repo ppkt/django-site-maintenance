@@ -3,7 +3,12 @@ from importlib import import_module
 
 from django.conf import settings
 from django.http import HttpResponseRedirect
-from django.utils.deprecation import MiddlewareMixin
+
+try:
+    from django.utils.deprecation import MiddlewareMixin
+except ImportError:
+    class MiddlewareMixin(object):
+        pass
 
 from maintenance import api
 
