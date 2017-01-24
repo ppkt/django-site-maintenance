@@ -8,15 +8,8 @@ import time
 from time import sleep
 from types import *
 
-try:
-    from django.templatetags.static import static
-except ImportError: # 1.3 fallback
-    from urlparse import urljoin
-
-    def static(path):
-        return urljoin(settings.STATIC_URL, path)
-
 from django.conf import settings
+from django.templatetags.static import static
 
 logger = logging.getLogger("maintenance")
 
@@ -36,6 +29,7 @@ SUCCESS = 0
 ERROR_BREAK = 1
 ERROR_TIMEOUT = 2
 ERROR_GENERIC = 3
+
 
 class MaintenanceModeError(Exception):
     pass
@@ -62,9 +56,7 @@ def start(ignore_session=False, timeout=60, verbosity=1):
                     if verbosity > 0:
                         print("Active sessions detected. Waiting for logout. (Session timeout set to %s secs) " % settings.SESSION_COOKIE_AGE)
                         print("Type double ^C to stop")
-                        sys.stdout.write(
-                            "%s pending sessions. %s (%d sec)\r" % (users, C[rounds % 2], round(time.time() - _start)))
-                        sys.stdout.flush()
+                        print("%s pending sessions. %s (%d sec)\r" % (users, C[rounds % 2], round(time.time() - _start)), file=sys.stderr)
                 rounds += 1
                 if rounds >= timeout:
                     return ERROR_TIMEOUT, '\nTimeout'
