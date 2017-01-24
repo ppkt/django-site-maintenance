@@ -1,7 +1,6 @@
-from optparse import make_option
 import datetime
 from django.contrib.sessions.models import Session
-from django.core.management.base import LabelCommand, CommandError
+from django.core.management.base import CommandError, BaseCommand
 import time
 import maintenance.api as api
 import logging
@@ -9,34 +8,30 @@ import logging
 logger = logging.getLogger("maintenance")
 
 
-class Command(LabelCommand):
-    opts = ('on', 'off', 'check', 'list', 'activate', 'deactivate', 'status')
+class Command(BaseCommand):
 
-    option_list = LabelCommand.option_list + (
-        make_option(
+    def add_arguments(self, parser):
+        """
+        :param argparse.ArgumentParser parser:
+        :return:
+        """
+        parser.add_argument('command', choices=[
+            'on', 'off', 'check', 'list', 'activate', 'deactivate', 'status'])
+
+        parser.add_argument(
             '--force', action='store_true', dest='ignore_session',
-            default=False,
-            help='Do not wait for active session. Brutally disconnect users'),
-
-        make_option(
+            default=False, help='Do not wait for active session. '
+                                'Brutally disconnect users')
+        parser.add_argument(
             '--timeout', action='store', dest='timeout', default=60,
-            help='Time to wait for pending sessions'),
-    )
+            help='Time to wait for pending sessions')
 
-    args = '|'.join(opts)
-    label = 'command'
-    help = """ """
-
-    def handle_default_options(self):
-        pass
-
-    def handle_label(self, cmd, **options):
+    def handle(self, *labels, **options):
+        cmd = options.get('command')
         verbosity = options.get('verbosity')
         timeout = options.get('timeout')
         ignore_session = options.get('ignore_session')
         ret, msg = 0, 'Unknown error'
-        if cmd not in Command.args:
-            raise CommandError('Allowed options are: %s' % self.args)
 
         if cmd in ('check', 'status'):
             ret, msg = api.check()
@@ -57,9 +52,3 @@ class Command(LabelCommand):
                 print s.pk, s.expire_date, offset
         if ret:
             raise CommandError(msg)
-
-
-
-
-
-
